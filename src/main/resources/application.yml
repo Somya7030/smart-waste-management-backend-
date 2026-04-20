@@ -1,0 +1,120 @@
+
+spring:
+  application:
+    name: smart-waste-management
+  profiles:
+    active: mysql   # ✅ MySQL activated
+
+
+  # ─────────────────────────────────────────────
+  # DATABASE CONFIGURATION
+  # Switch profile to use MySQL: --spring.profiles.active=mysql
+  # ─────────────────────────────────────────────
+  datasource:
+    url: jdbc:h2:mem:wastedb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # ─────────────────────────────────────────────
+  # FILE UPLOAD CONFIGURATION
+  # ─────────────────────────────────────────────
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# ─────────────────────────────────────────────
+# SERVER
+# ─────────────────────────────────────────────
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# ─────────────────────────────────────────────
+# MQTT CONFIGURATION
+# ─────────────────────────────────────────────
+mqtt:
+  broker-url: tcp://broker.hivemq.com:1883
+  client-id: smart-waste-backend-001
+  topic: bins/data
+  username: ""
+  password: ""
+  connection-timeout: 30
+  keep-alive-interval: 60
+  clean-session: true
+  enabled: true
+
+# ─────────────────────────────────────────────
+# FILE STORAGE
+# ─────────────────────────────────────────────
+file:
+  upload-dir: ./uploads
+
+# ─────────────────────────────────────────────
+# MOCK ML API
+# ─────────────────────────────────────────────
+ml:
+  classify-api-url: http://localhost:5001/classify
+
+# ─────────────────────────────────────────────
+# ROUTE OPTIMIZATION WEIGHTS
+# ─────────────────────────────────────────────
+route:
+  weight-fill-level: 0.7
+  weight-full-bonus: 50.0
+  cluster-radius-km: 2.0
+
+# ─────────────────────────────────────────────
+# LOGGING
+# ─────────────────────────────────────────────
+logging:
+  level:
+    com.smartwaste: DEBUG
+    org.springframework.integration.mqtt: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# ─────────────────────────────────────────────
+# ACTUATOR
+# ─────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+---
+# MySQL Profile
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: jdbc:mysql://localhost:3306/smart_waste_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: somyasaxena
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
